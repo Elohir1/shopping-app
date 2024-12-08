@@ -1,13 +1,12 @@
-'use client'
-
-import { useState } from 'react'
-import { PlusCircle, Archive, User, Search, ArchiveX } from 'lucide-react'
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { NewListDialog } from './NewListDialog'
-import { ListCard } from '../shopping-lists/ListCard'
-import { EditListDialog } from './EditListDialog'
-import { ShareListDialog } from './ShareListDialog'
+// src/components/dashboard/Dashboard.tsx
+import React, { useState } from 'react';
+import { PlusCircle, Archive, User, Search, ArchiveX } from 'lucide-react';
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { NewListDialog } from './NewListDialog';
+import { ListCard } from '../shopping-lists/ListCard';
+import { EditListDialog } from './EditListDialog';
+import { ShareListDialog } from './ShareListDialog';
 
 interface Member {
   id: string;
@@ -26,215 +25,107 @@ interface Seznam {
 interface DashboardProps {
   seznamy: Seznam[];
   currentUserEmail: string;
-  setSeznamyState: React.Dispatch<React.SetStateAction<Seznam[]>>;
-  handleUpdateList: (id: number, updates: Partial<Seznam>) => void;
-  handleAddItem: (seznamId: number, nazev: string) => void;
-  handleDeleteItem: (seznamId: number, polozkaIndex: number) => void;
-  handleToggleItem: (seznamId: number, polozkaIndex: number) => void;
-  handleLeaveList: (seznamId: number) => void;
+  onDeleteList: (id: number) => void;
+  onArchiveList: (id: number) => void;
+  onUnarchiveList: (id: number) => void;
+  onCreateList: (name: string) => void;
+  onUpdateList: (id: number, updates: Partial<Seznam>) => void;
+  onAddItem: (seznamId: number, nazev: string) => void;
+  onDeleteItem: (seznamId: number, polozkaIndex: number) => void;
+  onToggleItem: (seznamId: number, polozkaIndex: number) => void;
+  onLeaveList: (seznamId: number) => void;
 }
 
 export default function Dashboard({ 
   seznamy, 
-  setSeznamyState, 
   currentUserEmail,
-  handleUpdateList,
-  handleAddItem,
-  handleDeleteItem,
-  handleToggleItem,
-  handleLeaveList
+  onDeleteList,
+  onArchiveList,
+  onUnarchiveList,
+  onCreateList,
+  onUpdateList,
+  onAddItem,
+  onDeleteItem,
+  onToggleItem,
+  onLeaveList
 }: DashboardProps) {
+  const [isNewListModalOpen, setIsNewListModalOpen] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isEditListModalOpen, setIsEditListModalOpen] = useState(false);
+  const [editedList, setEditedList] = useState<Seznam | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharedList, setSharedList] = useState<Seznam | null>(null);
 
-  const handleAddMember = (seznamId: number, email: string) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === seznamId
-          ? {
-              ...seznam,
-              members: [
-                ...seznam.members,
-                { id: Date.now().toString(), email, isOwner: false }
-              ]
-            }
-          : seznam
-      )
-    )
-  }
-  
-  const handleRemoveMember = (seznamId: number, memberId: string) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === seznamId
-          ? {
-              ...seznam,
-              members: seznam.members.filter(member => member.id !== memberId)
-            }
-          : seznam
-      )
-    )
-  }
-  
-  const handleUpdateMemberRole = (seznamId: number, memberId: string, isOwner: boolean) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === seznamId
-          ? {
-              ...seznam,
-              members: seznam.members.map(member =>
-                member.id === memberId
-                  ? { ...member, isOwner }
-                  : member
-              )
-            }
-          : seznam
-      )
-    )
-  }
-  // Aktualizace seznamu (název, členové, atd.)
-// const handleUpdateList = (id: number, updates: Partial<Seznam>) => {
-//   setSeznamyState(prev =>
-//     prev.map(seznam =>
-//       seznam.id === id ? { ...seznam, ...updates } : seznam
-//     )
-//   );
-// };
-
-// // Přidání nové položky do seznamu
-// const handleAddItem = (seznamId: number, nazev: string) => {
-//   setSeznamyState(prev =>
-//     prev.map(seznam =>
-//       seznam.id === seznamId
-//         ? {
-//             ...seznam,
-//             polozky: [...seznam.polozky, { nazev, splneno: false }]
-//           }
-//         : seznam
-//     )
-//   );
-// };
-
-// // Smazání položky ze seznamu
-// const handleDeleteItem = (seznamId: number, polozkaIndex: number) => {
-//   setSeznamyState(prev =>
-//     prev.map(seznam =>
-//       seznam.id === seznamId
-//         ? {
-//             ...seznam,
-//             polozky: seznam.polozky.filter((_, index) => index !== polozkaIndex)
-//           }
-//         : seznam
-//     )
-//   );
-// };
-
-// // Změna stavu položky (splněno/nesplněno)
-// const handleToggleItem = (seznamId: number, polozkaIndex: number) => {
-//   setSeznamyState(prev =>
-//     prev.map(seznam =>
-//       seznam.id === seznamId
-//         ? {
-//             ...seznam,
-//             polozky: seznam.polozky.map((polozka, index) =>
-//               index === polozkaIndex
-//                 ? { ...polozka, splneno: !polozka.splneno }
-//                 : polozka
-//             )
-//           }
-//         : seznam
-//     )
-//   );
-// };
-
-// // Opuštění seznamu
-// const handleLeaveList = (seznamId: number) => {
-//   setSeznamyState(prev =>
-//     prev.map(seznam =>
-//       seznam.id === seznamId
-//         ? {
-//             ...seznam,
-//             members: seznam.members.filter(member => member.email !== currentUserEmail)
-//           }
-//         : seznam
-//     )
-//   );
-// };
-
-   // State pro modální okna
-   const [isNewListModalOpen, setIsNewListModalOpen] = useState(false);
-   const [showArchived, setShowArchived] = useState(false);
-   const [searchQuery, setSearchQuery] = useState("");
-   const [isEditListModalOpen, setIsEditListModalOpen] = useState(false);
-   const [editedList, setEditedList] = useState<Seznam | null>(null);
-   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-   const [sharedList, setSharedList] = useState<Seznam | null>(null);
- 
-   const handleCreateList = (name: string) => {
-     const newList: Seznam = {
-       id: Date.now(),
-       nazev: name,
-       polozky: [],
-       archivovano: false,
-       members: [
-         { id: "1", email: currentUserEmail, isOwner: true }
-       ]
-     };
-     setSeznamyState(prev => [...prev, newList]);
-   };
-
-  const handleArchive = (id: number) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === id ? { ...seznam, archivovano: true } : seznam
-      )
-    )
-  }
-
-  const handleUnarchive = (id: number) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === id ? { ...seznam, archivovano: false } : seznam
-      )
-    )
-  }
-
-  const handleDelete = (id: number) => {
-    setSeznamyState(prev => prev.filter(seznam => seznam.id !== id))
-  }
+  const handleCreateList = (name: string) => {
+    onCreateList(name);
+    setIsNewListModalOpen(false);
+  };
 
   const handleEdit = (id: number) => {
-    const seznam = seznamy.find(s => s.id === id)
+    const seznam = seznamy.find(s => s.id === id);
     if (seznam) {
-      setEditedList(seznam)
-      setIsEditListModalOpen(true)
+      setEditedList(seznam);
+      setIsEditListModalOpen(true);
     }
-  }
+  };
 
   const handleEditSave = (id: number, newName: string) => {
-    setSeznamyState(prev =>
-      prev.map(seznam =>
-        seznam.id === id
-          ? { ...seznam, nazev: newName }
-          : seznam
-      )
-    )
-  }
+    onUpdateList(id, { nazev: newName });
+    setIsEditListModalOpen(false);
+    setEditedList(null);
+  };
 
   const handleShare = (id: number) => {
-    const seznam = seznamy.find(s => s.id === id)
+    const seznam = seznamy.find(s => s.id === id);
     if (seznam) {
-      setSharedList(seznam)
-      setIsShareModalOpen(true)
+      setSharedList(seznam);
+      setIsShareModalOpen(true);
     }
-  }
+  };
+
+  const handleAddMember = (seznamId: number, email: string) => {
+    const seznam = seznamy.find(s => s.id === seznamId);
+    if (seznam) {
+      const newMember = {
+        id: Date.now().toString(),
+        email,
+        isOwner: false
+      };
+      onUpdateList(seznamId, {
+        members: [...seznam.members, newMember]
+      });
+    }
+  };
+
+  const handleRemoveMember = (seznamId: number, memberId: string) => {
+    const seznam = seznamy.find(s => s.id === seznamId);
+    if (seznam) {
+      onUpdateList(seznamId, {
+        members: seznam.members.filter(member => member.id !== memberId)
+      });
+    }
+  };
+
+  const handleUpdateMemberRole = (seznamId: number, memberId: string, isOwner: boolean) => {
+    const seznam = seznamy.find(s => s.id === seznamId);
+    if (seznam) {
+      onUpdateList(seznamId, {
+        members: seznam.members.map(member =>
+          member.id === memberId ? { ...member, isOwner } : member
+        )
+      });
+    }
+  };
 
   const filteredSeznamyState = seznamy
     .filter(seznam => showArchived ? true : !seznam.archivovano)
     .filter(seznam => 
       seznam.nazev.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    );
 
-  const archivedCount = seznamy.filter(seznam => seznam.archivovano).length
-  const activeCount = seznamy.filter(seznam => !seznam.archivovano).length
+  const archivedCount = seznamy.filter(seznam => seznam.archivovano).length;
+  const activeCount = seznamy.filter(seznam => !seznam.archivovano).length;
 
   return (
     <div className="min-h-screen bg-[#f3f8e8]">
@@ -305,24 +196,24 @@ export default function Dashboard({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  {filteredSeznamyState.map((seznam) => (
-    <ListCard
-      key={seznam.id}
-      seznam={seznam}
-      currentUserEmail={currentUserEmail}
-      onDelete={handleDelete}
-      onEdit={handleEdit}
-      onArchive={handleArchive}
-      onUnarchive={handleUnarchive}
-      onShare={handleShare}
-      onUpdateList={handleUpdateList}
-      onAddItem={handleAddItem}
-      onDeleteItem={handleDeleteItem}
-      onToggleItem={handleToggleItem}
-      onLeaveList={handleLeaveList}
-    />
-  ))}
-</div>
+            {filteredSeznamyState.map((seznam) => (
+              <ListCard
+                key={seznam.id}
+                seznam={seznam}
+                currentUserEmail={currentUserEmail}
+                onDelete={onDeleteList}
+                onEdit={handleEdit}
+                onArchive={onArchiveList}
+                onUnarchive={onUnarchiveList}
+                onShare={handleShare}
+                onUpdateList={onUpdateList}
+                onAddItem={onAddItem}
+                onDeleteItem={onDeleteItem}
+                onToggleItem={onToggleItem}
+                onLeaveList={onLeaveList}
+              />
+            ))}
+          </div>
         )}
 
         <NewListDialog
@@ -340,6 +231,7 @@ export default function Dashboard({
           onEditList={handleEditSave}
           seznam={editedList}
         />
+
         <ShareListDialog
           isOpen={isShareModalOpen}
           onClose={() => {
@@ -354,5 +246,5 @@ export default function Dashboard({
         />
       </div>
     </div>
-  )
+  );
 }

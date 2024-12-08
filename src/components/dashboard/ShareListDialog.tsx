@@ -70,10 +70,12 @@ export function ShareListDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] bg-[#f3f8e8] border-[#7d9b69]">
         <DialogHeader>
-          <DialogTitle>Sdílení seznamu</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[#2d3e23] text-lg font-bold">
+            Sdílení seznamu
+          </DialogTitle>
+          <DialogDescription className="text-[#4e6a4d] text-base">
             Seznam "{seznam?.nazev}" je sdílen s následujícími uživateli:
           </DialogDescription>
         </DialogHeader>
@@ -82,7 +84,12 @@ export function ShareListDialog({
           <form onSubmit={handleAddMember} className="space-y-4">
             <div className="flex gap-2">
               <div className="flex-1">
-                <Label htmlFor="email">Email nového člena</Label>
+                <Label 
+                  htmlFor="email" 
+                  className="text-[#2d3e23] font-medium"
+                >
+                  Email nového člena
+                </Label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="email"
@@ -90,7 +97,7 @@ export function ShareListDialog({
                     value={newMemberEmail}
                     onChange={(e) => setNewMemberEmail(e.target.value)}
                     placeholder="email@example.com"
-                    className="flex-1 border-[#7d9b69] focus-visible:ring-[#4e6a4d]"
+                    className="flex-1 border-[#7d9b69] bg-white focus-visible:ring-[#4e6a4d]"
                   />
                   <Button 
                     type="submit"
@@ -108,12 +115,12 @@ export function ShareListDialog({
           </form>
 
           <div className="mt-6 space-y-4">
-            <h4 className="text-sm font-medium text-gray-500">Členové seznamu</h4>
+            <h4 className="text-[#2d3e23] font-semibold">Členové seznamu</h4>
             <div className="space-y-2">
               {seznam?.members?.map((member) => (
                 <div 
                   key={member.id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-[#f3f8e8]"
+                  className="flex items-center justify-between p-3 rounded-lg bg-white border border-[#7d9b69]"
                 >
                   <div className="flex items-center gap-2">
                     {member.isOwner ? (
@@ -121,7 +128,7 @@ export function ShareListDialog({
                     ) : (
                       <User className="w-4 h-4 text-[#7d9b69]" />
                     )}
-                    <span className={member.email === currentUserEmail ? 'font-medium' : ''}>
+                    <span className={`text-[#4e6a4d] ${member.email === currentUserEmail ? 'font-medium' : ''}`}>
                       {member.email}
                       {member.email === currentUserEmail && ' (vy)'}
                     </span>
@@ -133,7 +140,7 @@ export function ShareListDialog({
                           variant="ghost"
                           size="sm"
                           onClick={() => seznam && onUpdateMemberRole(seznam.id, member.id, !member.isOwner)}
-                          className="text-[#4e6a4d] hover:text-[#2d3e23] hover:bg-[#c3d5ae]"
+                          className="text-white bg-[#7d9b69] hover:bg-[#4e6a4d]"
                         >
                           {member.isOwner ? 'Odebrat práva vlastníka' : 'Přidat práva vlastníka'}
                         </Button>
@@ -141,7 +148,7 @@ export function ShareListDialog({
                           variant="ghost"
                           size="sm"
                           onClick={() => seznam && onRemoveMember(seznam.id, member.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-white bg-red-500 hover:bg-red-600"
                         >
                           <X className="w-4 h-4" />
                         </Button>

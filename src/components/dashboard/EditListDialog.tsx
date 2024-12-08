@@ -40,32 +40,36 @@ export function EditListDialog({ isOpen, onClose, onEditList, seznam }: EditList
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-[#f3f8e8] border-[#7d9b69]">
         <DialogHeader>
-          <DialogTitle>Upravit název seznamu</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[#2d3e23] text-lg font-bold">
+            Upravit název seznamu
+          </DialogTitle>
+          <DialogDescription className="text-[#4e6a4d] text-base">
             Změňte název nákupního seznamu.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Název seznamu</Label>
+              <Label htmlFor="name" className="text-[#2d3e23] font-medium">
+                Název seznamu
+              </Label>
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border-[#7d9b69] focus-visible:ring-[#4e6a4d]"
+                className="border-[#7d9b69] bg-white focus-visible:ring-[#4e6a4d]"
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-[#7d9b69] text-[#7d9b69] hover:bg-[#f3f8e8]"
+              className="border-[#7d9b69] text-[#4e6a4d] hover:bg-[#e2ebd3] hover:text-[#2d3e23]"
             >
               Zrušit
             </Button>

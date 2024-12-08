@@ -20,7 +20,6 @@ function App() {
   const currentUserEmail = "user@example.com";
   const [seznamy, setSeznamyState] = useState<Seznam[]>([]);
 
-  // Přidán handler pro přepínání položek
   const handleToggleItem = (seznamId: number, polozkaIndex: number) => {
     setSeznamyState(prev => 
       prev.map(seznam => {
@@ -49,13 +48,7 @@ function App() {
   };
 
   const handleDeleteList = (id: number) => {
-    const seznam = seznamy.find(s => s.id === id);
-    const userIsMember = seznam?.members.find(m => m.email === currentUserEmail);
-    const userIsOwner = userIsMember?.isOwner;
-  
-    if (userIsOwner) {
-      setSeznamyState(prev => prev.filter(seznam => seznam.id !== id));
-    }
+    setSeznamyState(prev => prev.filter(seznam => seznam.id !== id));
   };
 
   const handleUpdateList = (id: number, updates: Partial<Seznam>) => {
@@ -110,7 +103,6 @@ function App() {
     );
   };
 
-  // Přidán handler pro opuštění seznamu
   const handleLeaveList = (seznamId: number) => {
     setSeznamyState(prev => 
       prev.map(seznam => {
@@ -132,12 +124,15 @@ function App() {
           <Dashboard 
             seznamy={seznamy}
             currentUserEmail={currentUserEmail}
-            setSeznamyState={setSeznamyState}
-            handleUpdateList={handleUpdateList}
-            handleAddItem={handleAddItem}
-            handleDeleteItem={handleDeleteItem}
-            handleToggleItem={handleToggleItem}
-            handleLeaveList={handleLeaveList}
+            onDeleteList={handleDeleteList}
+            onArchiveList={handleArchiveList}
+            onUnarchiveList={handleUnarchiveList}
+            onCreateList={handleCreateList}
+            onUpdateList={handleUpdateList}
+            onAddItem={handleAddItem}
+            onDeleteItem={handleDeleteItem}
+            onToggleItem={handleToggleItem}
+            onLeaveList={handleLeaveList}
           />
         } />
         <Route 
