@@ -116,35 +116,46 @@ export const ShoppingListDetail: React.FC<ShoppingListDetailProps> = ({
   return (
     <Card className="max-w-4xl mx-auto bg-white">
       <CardHeader className="flex flex-row justify-between items-center space-y-0 pb-4">
-        <Button
-          variant="ghost"
-          className="text-[#4e6a4d] hover:text-[#2d3e23] hover:bg-[#f3f8e8]"
-          onClick={() => navigate('/')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Zpět na seznamy
-        </Button>
-        {currentUserRole && (
-          isOwner ? (
-            <Button
-              variant="outline"
-              onClick={() => setShowMemberDialog(true)}
-              className="bg-[#7d9b69] text-white hover:bg-[#4e6a4d] border-none"
-            >
-              <Share className="w-4 h-4 mr-2" />
-              Sdílet
-            </Button>
-          ) : (
-            <Button
-              variant="destructive"
-              onClick={handleLeave}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Opustit seznam
-            </Button>
-          )
-        )}
-      </CardHeader>
+  <div className="flex items-center gap-4">
+    <Button
+      variant="ghost"
+      className="text-[#4e6a4d] hover:text-[#2d3e23] hover:bg-[#f3f8e8]"
+      onClick={() => navigate('/')}
+    >
+      <ArrowLeft className="w-4 h-4 mr-2" />
+      Zpět na seznamy
+    </Button>
+    {seznam.archivovano && isOwner && (
+      <Button 
+        onClick={() => onUpdateList(seznam.id, { archivovano: false })}
+        className="bg-[#7d9b69] text-white hover:bg-[#4e6a4d]"
+      >
+        <X className="w-4 h-4 mr-2" />
+        Zrušit archivaci
+      </Button>
+    )}
+  </div>
+  {currentUserRole && (
+    isOwner ? (
+      <Button
+        variant="outline"
+        onClick={() => setShowMemberDialog(true)}
+        className="bg-[#7d9b69] text-white hover:bg-[#4e6a4d] border-none"
+      >
+        <Share className="w-4 h-4 mr-2" />
+        Sdílet
+      </Button>
+    ) : (
+      <Button
+        variant="destructive"
+        onClick={handleLeave}
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        Opustit seznam
+      </Button>
+    )
+  )}
+</CardHeader>
 
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
@@ -213,13 +224,15 @@ export const ShoppingListDetail: React.FC<ShoppingListDetailProps> = ({
         </div>
 
         <Dialog open={showMemberDialog} onOpenChange={setShowMemberDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Přidat člena</DialogTitle>
-              <DialogDescription>
-                Zadejte email nového člena pro sdílení seznamu.
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent className="bg-[#f3f8e8] border-[#7d9b69]">
+  <DialogHeader>
+    <DialogTitle className="text-[#2d3e23] text-lg font-bold">
+      Přidat člena
+    </DialogTitle>
+    <DialogDescription className="text-[#4e6a4d] text-base">
+      Zadejte email nového člena pro sdílení seznamu.
+    </DialogDescription>
+  </DialogHeader>
             <form onSubmit={handleAddMember}>
               <div className="space-y-4 py-4">
                 <Input

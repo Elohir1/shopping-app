@@ -70,7 +70,7 @@ export function ShareListDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[525px] bg-[#f3f8e8] border-[#7d9b69]">
+      <DialogContent className="bg-[#f3f8e8] border-[#7d9b69]">
         <DialogHeader>
           <DialogTitle className="text-[#2d3e23] text-lg font-bold">
             Sdílení seznamu
