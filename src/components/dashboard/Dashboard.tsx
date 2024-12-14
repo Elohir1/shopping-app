@@ -145,6 +145,7 @@ export default function Dashboard({
             <div className="relative flex-grow md:flex-grow-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4e6a4d]" />
               <Input 
+                data-testid="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 type="text" 

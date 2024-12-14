@@ -81,6 +81,76 @@ export const mockData = {
         members: [
           { id: "1", email: "user@example.com", isOwner: true }
         ]
+      },
+      {
+        id: 6,
+        nazev: "Prázdný seznam",
+        polozky: [],
+        archivovano: false,
+        members: [{ id: "1", email: "user@example.com", isOwner: true }]
+      },
+      {
+        id: 7,
+        nazev: "Seznam s mnoha položkami",
+        polozky: Array(50).fill(null).map((_, i) => ({
+          nazev: `Položka ${i + 1} (Pro testování dlouhých seznamů a scrollování)`,
+          splneno: Math.random() > 0.5
+        })),
+        archivovano: false,
+        members: [{ id: "1", email: "user@example.com", isOwner: true }]
+      },
+      {
+        id: 8,
+        nazev: "Seznam s mnoha členy",
+        polozky: [{ nazev: "Testovací položka pro více členů", splneno: false }],
+        archivovano: false,
+        members: Array(10).fill(null).map((_, i) => ({
+          id: `member${i}`,
+          email: `tester${i}@example.com`,
+          isOwner: i === 0
+        }))
+      },
+      {
+        id: 9,
+        nazev: "Seznam s extrémně dlouhými názvy",
+        polozky: [{
+          nazev: "Toto je extrémně dlouhý název položky, který by mohl způsobit problémy s layoutem na mobilních zařízeních a měli bychom otestovat, jak se s ním UI vypořádá v různých situacích včetně přetečení textu",
+          splneno: false
+        }],
+        archivovano: false,
+        members: [{ id: "1", email: "user@example.com", isOwner: true }]
+      },
+      {
+        id: 10,
+        nazev: "Seznam se speciálními znaky @#$%^&*()",
+        polozky: [
+          { nazev: "Položka s emojis 🎉🎊🎈", splneno: false },
+          { nazev: "Položka s HTML znaky <div>test</div>", splneno: false },
+          { nazev: "Položka s Unicode znaky ěščřžýáíé", splneno: true }
+        ],
+        archivovano: false,
+        members: [{ id: "1", email: "user@example.com", isOwner: true }]
+      },
+      {
+        id: 11,
+        nazev: "Seznam s duplicate items",
+        polozky: [
+          { nazev: "Stejná položka", splneno: false },
+          { nazev: "Stejná položka", splneno: true },
+          { nazev: "Stejná položka", splneno: false }
+        ],
+        archivovano: false,
+        members: [{ id: "1", email: "user@example.com", isOwner: true }]
+      },
+      {
+        id: 12,
+        nazev: "Seznam bez vlastníka",
+        polozky: [{ nazev: "Test položka", splneno: false }],
+        archivovano: false,
+        members: [
+          { id: "7", email: "member1@example.com", isOwner: false },
+          { id: "8", email: "member2@example.com", isOwner: false }
+        ]
       }
     ]
   };

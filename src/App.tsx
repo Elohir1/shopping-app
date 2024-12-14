@@ -5,6 +5,10 @@ import Dashboard from './components/dashboard/Dashboard';
 import { ShoppingListDetail } from './components/shopping-lists/ShoppingListDetail';
 import { ApiService } from './api/apiService';
 import { Alert, AlertDescription } from "./components/ui/alert";
+import { BrowserRouter as Router } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/ui/LoadingSpinner';
+import ErrorMessage from './components/ui/ErrorMessage';
 
 export interface Seznam {
   id: number;
@@ -197,46 +201,56 @@ function App() {
   }
 
   return (
-    <>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={
-            <Dashboard 
-              seznamy={seznamy}
-              currentUserEmail={currentUserEmail}
-              onDeleteList={handleDeleteList}
-              onArchiveList={handleArchiveList}
-              onUnarchiveList={handleUnarchiveList}
-              onCreateList={handleCreateList}
-              onUpdateList={handleUpdateList}
-              onAddItem={handleAddItem}
-              onDeleteItem={handleDeleteItem}
-              onToggleItem={handleToggleItem}
-              onLeaveList={handleLeaveList}
-            />
-          } />
-          <Route 
-            path="/shopping-list/:id" 
-            element={
-              <ShoppingListDetail 
-                seznamy={seznamy}
-                currentUserEmail={currentUserEmail}
-                onUpdateList={handleUpdateList}
-                onAddItem={handleAddItem}
-                onDeleteItem={handleDeleteItem}
-                onToggleItem={handleToggleItem}
-                onLeaveList={handleLeaveList}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        {loading ? (
+          <LoadingSpinner size="large" message="Načítám seznamy..." />
+        ) : (
+          <>
+            {error && (
+              <ErrorMessage
+                message={error}
+                variant="destructive"
+                onRetry={loadSeznamyData}
               />
-            } 
-          />
-        </Route>
-      </Routes>
-    </>
+            )}
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={
+                  <Dashboard 
+                    seznamy={seznamy}
+                    currentUserEmail={currentUserEmail}
+                    onDeleteList={handleDeleteList}
+                    onArchiveList={handleArchiveList}
+                    onUnarchiveList={handleUnarchiveList}
+                    onCreateList={handleCreateList}
+                    onUpdateList={handleUpdateList}
+                    onAddItem={handleAddItem}
+                    onDeleteItem={handleDeleteItem}
+                    onToggleItem={handleToggleItem}
+                    onLeaveList={handleLeaveList}
+                  />
+                } />
+                <Route 
+                  path="/shopping-list/:id" 
+                  element={
+                    <ShoppingListDetail 
+                      seznamy={seznamy}
+                      currentUserEmail={currentUserEmail}
+                      onUpdateList={handleUpdateList}
+                      onAddItem={handleAddItem}
+                      onDeleteItem={handleDeleteItem}
+                      onToggleItem={handleToggleItem}
+                      onLeaveList={handleLeaveList}
+                    />
+                  } 
+                />
+              </Route>
+            </Routes>
+          </>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
 
