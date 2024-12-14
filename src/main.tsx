@@ -6,7 +6,7 @@ import './index.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* Obalíme celou aplikaci do BrowserRouter */}
+    {}
     <BrowserRouter>
       <App />
     </BrowserRouter>

@@ -184,7 +184,7 @@ function App() {
   // Handler pro opuštění seznamu
   const handleLeaveList = async (seznamId: number) => {
     try {
-      await ApiService.removeMember(seznamId, 'current-user-id'); // V reálné aplikaci byste použili skutečné ID uživatele
+      await ApiService.removeMember(seznamId, 'current-user-id'); // V reálné aplikaci použití skutečného ID uživatele
       setSeznamyState(prev => 
         prev.filter(seznam => seznam.id !== seznamId)
       );

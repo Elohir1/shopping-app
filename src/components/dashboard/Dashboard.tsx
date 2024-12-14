@@ -1,4 +1,3 @@
-// src/components/dashboard/Dashboard.tsx
 import React, { useState } from 'react';
 import { PlusCircle, Archive, User, Search, ArchiveX } from 'lucide-react';
 import { Button } from "../ui/button";

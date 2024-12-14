@@ -28,7 +28,7 @@ const ShoppingListDetail: React.FC<ShoppingListDetailProps> = ({ id }) => {
   const [newMemberEmail, setNewMemberEmail] = useState<string>("");
   const [showMemberDialog, setShowMemberDialog] = useState<boolean>(false);
   
-  // State pro členy a položky zůstává stejný
+  // State pro členy a položky
   const [currentUser] = useState<Member>({
     id: "1",
     name: "Current User",
@@ -51,7 +51,6 @@ const ShoppingListDetail: React.FC<ShoppingListDetailProps> = ({ id }) => {
     { id: 7, name: "Pamlsky pro koně", checked: false },
   ]);
 
-  // Všechny handlery zůstávají stejné
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (currentUser.isOwner) {
       setListName(e.target.value);

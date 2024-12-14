@@ -52,7 +52,6 @@ describe('Dashboard', () => {
       renderDashboard();
       const newButton = screen.getByText('Nový');
       fireEvent.click(newButton);
-      // NewListDialog by se měl otevřít
     });
   
     test('can toggle archive view', () => {
