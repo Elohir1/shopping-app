@@ -10,13 +10,16 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { X, UserPlus, Crown, User } from 'lucide-react';
+import { useIntl } from 'react-intl';
 
+// Definice typů pro členy seznamu
 interface Member {
   id: string;
   email: string;
   isOwner: boolean;
 }
 
+// Props komponenty
 interface ShareListDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,28 +43,33 @@ export function ShareListDialog({
   onUpdateMemberRole,
   currentUserEmail
 }: ShareListDialogProps) {
+  // Lokální state pro správu nového emailu a chyb
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const intl = useIntl();
 
+  // Handler pro přidání nového člena
   const handleAddMember = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    // Validace emailu
     if (!newMemberEmail.trim()) {
-      setError("Zadejte emailovou adresu");
+      setError(intl.formatMessage({ id: 'error.emailRequired' }));
       return;
     }
 
     if (!newMemberEmail.includes('@')) {
-      setError("Zadejte platnou emailovou adresu");
+      setError(intl.formatMessage({ id: 'error.emailInvalid' }));
       return;
     }
 
     if (seznam?.members?.some(member => member.email === newMemberEmail)) {
-      setError("Tento uživatel už má přístup k seznamu");
+      setError(intl.formatMessage({ id: 'error.memberExists' }));
       return;
     }
 
+    // Pokud validace prošla, přidáme člena
     if (seznam) {
       onAddMember(seznam.id, newMemberEmail);
       setNewMemberEmail("");
@@ -70,91 +78,110 @@ export function ShareListDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-[#f3f8e8] border-[#7d9b69]">
+      {/* Dialog wrapper s responzivní šířkou a paddingem */}
+      <DialogContent className="w-[95vw] max-w-lg mx-auto bg-[#f3f8e8] dark:bg-[#1a2412] border-[#7d9b69] dark:border-[#4e6a4d] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-[#2d3e23] text-lg font-bold">
-            Sdílení seznamu
+          {/* Nadpis dialogu s responzivní velikostí písma */}
+          <DialogTitle className="text-base sm:text-lg font-bold text-[#2d3e23] dark:text-[#e8f3e8]">
+            {intl.formatMessage({ id: 'dialog.share.title' })}
           </DialogTitle>
-          <DialogDescription className="text-[#4e6a4d] text-base">
-            Seznam "{seznam?.nazev}" je sdílen s následujícími uživateli:
+          <DialogDescription className="text-sm sm:text-base text-[#4e6a4d] dark:text-[#7d9b69]">
+            {intl.formatMessage(
+              { id: 'dialog.share.description' },
+              { name: seznam?.nazev }
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="py-4 space-y-6">
+          {/* Formulář pro přidání nového člena */}
           <form onSubmit={handleAddMember} className="space-y-4">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Label 
-                  htmlFor="email" 
-                  className="text-[#2d3e23] font-medium"
-                >
-                  Email nového člena
+            <div className="space-y-2">
+              <Label 
+                htmlFor="email" 
+                className="text-sm sm:text-base font-medium text-[#2d3e23] dark:text-[#e8f3e8]"
+              >
+                {intl.formatMessage({ id: 'dialog.share.newMember' })}
                 </Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newMemberEmail}
-                    onChange={(e) => setNewMemberEmail(e.target.value)}
-                    placeholder="email@example.com"
-                    className="flex-1 border-[#7d9b69] bg-white focus-visible:ring-[#4e6a4d]"
-                  />
-                  <Button 
-                    type="submit"
-                    className="bg-[#7d9b69] text-white hover:bg-[#4e6a4d]"
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Přidat
-                  </Button>
-                </div>
-                {error && (
-                  <p className="text-sm text-red-500 mt-1">{error}</p>
-                )}
+              {/* Responzivní layout pro input a tlačítko */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  id="email"
+                  type="email"
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                  placeholder={intl.formatMessage({ id: 'dialog.share.emailPlaceholder' })}
+                  className="flex-1 min-w-0 min-h-[44px]"
+                />
+                <Button 
+                  type="submit"
+                  className="w-full sm:w-auto min-h-[44px] bg-[#7d9b69] text-white hover:bg-[#4e6a4d]"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {intl.formatMessage({ id: 'dialog.share.add' })}
+                </Button>
               </div>
+              {/* Zobrazení chyby */}
+              {error && (
+                <p className="text-sm text-red-500 mt-1">{error}</p>
+              )}
             </div>
           </form>
 
-          <div className="mt-6 space-y-4">
-            <h4 className="text-[#2d3e23] font-semibold">Členové seznamu</h4>
-            <div className="space-y-2">
+           {/* Seznam členů */}
+           <div className="space-y-4">
+            <h4 className="text-sm sm:text-base font-semibold text-[#2d3e23] dark:text-[#e8f3e8]">
+              {intl.formatMessage({ id: 'dialog.share.members' })}
+            </h4>
+            <div className="space-y-3">
               {seznam?.members?.map((member) => (
                 <div 
                   key={member.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white border border-[#7d9b69]"
+                  className="p-3 sm:p-4 rounded-lg bg-white dark:bg-[#2d3e23] border border-[#7d9b69] dark:border-[#4e6a4d]"
                 >
-                  <div className="flex items-center gap-2">
+                  {/* Informace o členovi */}
+                  <div className="flex items-center gap-2 mb-2 sm:mb-0">
                     {member.isOwner ? (
                       <Crown className="w-4 h-4 text-[#7d9b69]" />
                     ) : (
                       <User className="w-4 h-4 text-[#7d9b69]" />
                     )}
-                    <span className={`text-[#4e6a4d] ${member.email === currentUserEmail ? 'font-medium' : ''}`}>
+                    <span className={`text-sm sm:text-base text-[#4e6a4d] ${
+                      member.email === currentUserEmail ? 'font-medium' : ''
+                    }`}>
                       {member.email}
-                      {member.email === currentUserEmail && ' (vy)'}
+                      {member.email === currentUserEmail && (
+                        <span className="text-sm text-[#4e6a4d] dark:text-[#7d9b69] ml-2">
+                          {intl.formatMessage({ id: 'dialog.share.youIndicator' })}
+                        </span>
+                      )}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {member.email !== currentUserEmail && seznam?.members?.some(m => m.email === currentUserEmail && m.isOwner) && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => seznam && onUpdateMemberRole(seznam.id, member.id, !member.isOwner)}
-                          className="text-white bg-[#7d9b69] hover:bg-[#4e6a4d]"
-                        >
-                          {member.isOwner ? 'Odebrat práva vlastníka' : 'Přidat práva vlastníka'}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => seznam && onRemoveMember(seznam.id, member.id)}
-                          className="text-white bg-red-500 hover:bg-red-600"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
+                    {/* Akce pro člena (jen pro vlastníka) */}
+                  {member.email !== currentUserEmail && 
+                   seznam?.members?.some(m => m.email === currentUserEmail && m.isOwner) && (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => seznam && onUpdateMemberRole(seznam.id, member.id, !member.isOwner)}
+                        className="w-full sm:w-auto text-white bg-[#7d9b69] hover:bg-[#4e6a4d] min-h-[44px]"
+                      >
+                        {member.isOwner 
+                          ? intl.formatMessage({ id: 'dialog.share.removeOwner' })
+                          : intl.formatMessage({ id: 'dialog.share.addOwner' })
+                        }
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => seznam && onRemoveMember(seznam.id, member.id)}
+                        className="w-full sm:w-auto text-white bg-red-500 hover:bg-red-600 min-h-[44px]"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -6,25 +6,26 @@ import { NewListDialog } from './NewListDialog';
 import { ListCard } from '../shopping-lists/ListCard';
 import { EditListDialog } from './EditListDialog';
 import { ShareListDialog } from './ShareListDialog';
+import { ThemeToggle } from "../ui/ThemeToggle";
+import { useIntl } from 'react-intl';
+import { Seznam } from '../../types';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../ui/dropdown-menu";
 
-interface Member {
-  id: string;
-  email: string;
-  isOwner: boolean;
-}
+// Typ pro podporované jazyky v aplikaci
+type SupportedLocale = 'cs' | 'en' | 'it';
 
-interface Seznam {
-  id: number;
-  nazev: string;
-  polozky: { nazev: string; splneno: boolean; }[];
-  archivovano: boolean;
-  members: Member[];
-}
-
+// Props interface pro Dashboard komponentu
 interface DashboardProps {
-  seznamy: Seznam[];
-  currentUserEmail: string;
-  onDeleteList: (id: number) => void;
+  seznamy: Seznam[];                    // Seznam všech nákupních seznamů
+  currentUserEmail: string;             // Email přihlášeného uživatele
+  locale: SupportedLocale;             // Aktuální jazyk
+  onLanguageChange: (locale: SupportedLocale) => void;  // Handler pro změnu jazyka
+  onDeleteList: (id: number) => void;   // Handler pro smazání seznamu
   onArchiveList: (id: number) => void;
   onUnarchiveList: (id: number) => void;
   onCreateList: (name: string) => void;
@@ -38,6 +39,8 @@ interface DashboardProps {
 export default function Dashboard({ 
   seznamy, 
   currentUserEmail,
+  locale,
+  onLanguageChange,
   onDeleteList,
   onArchiveList,
   onUnarchiveList,
@@ -48,15 +51,28 @@ export default function Dashboard({
   onToggleItem,
   onLeaveList
 }: DashboardProps) {
+     // State pro modální okna
   const [isNewListModalOpen, setIsNewListModalOpen] = useState(false);
+  const [isEditListModalOpen, setIsEditListModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  
+  // State pro filtrování a editaci
   const [showArchived, setShowArchived] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isEditListModalOpen, setIsEditListModalOpen] = useState(false);
   const [editedList, setEditedList] = useState<Seznam | null>(null);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedList, setSharedList] = useState<Seznam | null>(null);
 
-  const handleCreateList = (name: string) => {
+  const intl = useIntl();
+
+   // Konfigurace jazykových možností s vlajkami a popisky
+  const languageOptions: Record<SupportedLocale, { label: string; flag: string }> = {
+  cs: { label: 'Čeština', flag: '🇨🇿' },  // Unicode: \uD83C\uDDE8\uD83C\uDDFF
+  en: { label: 'English', flag: '🇬🇧' },  // Unicode: \uD83C\uDDEC\uD83C\uDDE7
+  it: { label: 'Italiano', flag: '🇮🇹' }  // Unicode: \uD83C\uDDEE\uD83C\uDDF9
+};
+
+   // Handler pro vytvoření nového seznamu
+   const handleCreateList = (name: string) => {
     onCreateList(name);
     setIsNewListModalOpen(false);
   };
@@ -117,6 +133,7 @@ export default function Dashboard({
     }
   };
 
+  // Filtrace seznamů podle archivace a vyhledávání
   const filteredSeznamyState = seznamy
     .filter(seznam => showArchived ? true : !seznam.archivovano)
     .filter(seznam => 
@@ -127,18 +144,44 @@ export default function Dashboard({
   const activeCount = seznamy.filter(seznam => !seznam.archivovano).length;
 
   return (
-    <div className="min-h-screen bg-[#f3f8e8]">
-      <div className="max-w-6xl mx-auto p-6">
+    <div className="min-h-screen bg-[#f3f8e8] dark:bg-[#1a2412]">
+      {/* Vylepšení UI: Přidat max-width pro lepší čitelnost na velkých obrazovkách */}
+      <div className="max-w-6xl mx-auto p-6 dark:text-white">
         <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex items-center space-x-4">
-            <h1 className="text-3xl font-bold text-[#2d3e23]">Nákupní seznamy</h1>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full bg-[#c3d5ae] text-[#2d3e23] hover:bg-[#7d9b69] hover:text-white"
-            >
-              <User className="w-5 h-5" />
-            </Button>
+            <h1 className="text-3xl font-bold text-[#2d3e23] dark:text-[#e8f3e8]">
+              {intl.formatMessage({ id: 'app.title' })}
+            </h1>
+            <div className="flex space-x-2">
+              <ThemeToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    className="rounded-full bg-[#c3d5ae] dark:bg-[#2d3e23] text-[#2d3e23] dark:text-white"
+                  >
+                    {languageOptions[locale].flag}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="bg-white dark:bg-[#2d3e23] border-[#7d9b69] dark:border-[#4e6a4d]"
+                >
+                  {Object.entries(languageOptions).map(([key, { label, flag }]) => (
+                    <DropdownMenuItem
+                      key={key}
+                      onClick={() => onLanguageChange(key as SupportedLocale)}
+                      className={`text-[#2d3e23] dark:text-white
+                        ${locale === key 
+                          ? 'bg-[#e2ebd3] dark:bg-[#4e6a4d]' 
+                          : 'hover:bg-[#f3f8e8] dark:hover:bg-[#1a2412]'
+                        }`}
+                    >
+                      <span className="mr-2">{flag}</span>
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <div className="flex items-center space-x-2 w-full md:w-auto">
             <div className="relative flex-grow md:flex-grow-0">
@@ -148,7 +191,7 @@ export default function Dashboard({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 type="text" 
-                placeholder="Hledat seznamy..." 
+                placeholder={intl.formatMessage({ id: 'app.searchPlaceholder' })}
                 className="pl-10 pr-4 py-2 w-full md:w-64 rounded-full bg-white border-[#7d9b69] focus-visible:ring-[#4e6a4d]"
               />
             </div>
@@ -158,7 +201,7 @@ export default function Dashboard({
               className="rounded-full bg-[#7d9b69] text-white hover:bg-[#4e6a4d] border-none"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
-              Nový
+              {intl.formatMessage({ id: 'app.button.new' })}
             </Button>
             <Button 
               variant="outline" 
@@ -172,30 +215,33 @@ export default function Dashboard({
               {showArchived ? (
                 <>
                   <ArchiveX className="w-4 h-4 mr-2" />
-                  Aktivní ({activeCount})
+                  {intl.formatMessage({ id: 'app.button.active' })} ({activeCount})
                 </>
               ) : (
                 <>
                   <Archive className="w-4 h-4 mr-2" />
-                  Archiv ({archivedCount})
+                  {intl.formatMessage({ id: 'app.button.archive' })} ({archivedCount})
                 </>
               )}
             </Button>
           </div>
         </header>
 
+        {/* Vylepšení UI: Přidat animaci pro prázdný stav */}
         {filteredSeznamyState.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 animate-fadeIn">
             <p className="text-[#4e6a4d] text-lg">
               {searchQuery 
-                ? "Nenalezeny žádné seznamy odpovídající vašemu hledání" 
+                ? intl.formatMessage({ id: 'app.empty.noSearchResults' })
                 : showArchived
-                  ? "Žádné archivované seznamy"
-                  : "Zatím nemáte žádné nákupní seznamy"}
+                  ? intl.formatMessage({ id: 'app.empty.noArchived' })
+                  : intl.formatMessage({ id: 'app.empty.noLists' })
+              }
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          // Vylepšení UI: Přidat animaci pro grid
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-fadeIn">
             {filteredSeznamyState.map((seznam) => (
               <ListCard
                 key={seznam.id}
@@ -216,6 +262,7 @@ export default function Dashboard({
           </div>
         )}
 
+        {/* Modální okna */}
         <NewListDialog
           isOpen={isNewListModalOpen}
           onClose={() => setIsNewListModalOpen(false)}

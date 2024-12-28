@@ -8,16 +8,21 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { useIntl } from 'react-intl';
 
+// Props interface pro NewListDialog komponentu
 interface NewListDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreateList: (name: string) => void;
+  isOpen: boolean;        // Stav otevření dialogu
+  onClose: () => void;    // Handler pro zavření dialogu
+  onCreateList: (name: string) => void; // Handler pro vytvoření seznamu
 }
 
 export function NewListDialog({ isOpen, onClose, onCreateList }: NewListDialogProps) {
+  const intl = useIntl();
+    // State pro název nového seznamu
   const [name, setName] = useState("");
 
+  // Handler pro odeslání formuláře
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
@@ -29,36 +34,54 @@ export function NewListDialog({ isOpen, onClose, onCreateList }: NewListDialogPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white sm:max-w-[425px] p-6 rounded-lg">
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-semibold">Nový nákupní seznam</DialogTitle>
-          <DialogDescription>
-            Zadejte název pro nový nákupní seznam.
+      {/* Vylepšení UI: Přidat responzivní šířku a animaci */}
+      <DialogContent 
+        className="w-[95vw] sm:max-w-[425px] mx-auto bg-[#f3f8e8] dark:bg-[#1a2412] border-[#7d9b69] dark:border-[#4e6a4d] animate-dialogShow"
+        role="dialog"
+        aria-labelledby="dialog-title"
+      >
+        {/* Vylepšení UI: Responzivní velikost písma */}
+        <DialogHeader>
+          <DialogTitle 
+            id="dialog-title"
+            className="text-base sm:text-lg font-bold text-[#2d3e23] dark:text-[#e8f3e8]"
+          >
+            {intl.formatMessage({ id: 'dialog.newList.title' })}
+          </DialogTitle>
+          <DialogDescription className="text-sm sm:text-base text-[#4e6a4d] dark:text-[#7d9b69]">
+            {intl.formatMessage({ id: 'dialog.newList.description' })}
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Vylepšení UI: Přidat minimální výšku pro lepší dotykové ovládání */}
           <Input
+            type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Název seznamu"
-            className="w-full border-[#7d9b69] focus-visible:ring-[#4e6a4d]"
+            placeholder={intl.formatMessage({ id: 'dialog.newList.placeholder' })}
+            className="w-full min-h-[44px] border-[#7d9b69] dark:border-[#4e6a4d] bg-white dark:bg-[#2d3e23] dark:text-white focus-visible:ring-[#4e6a4d]"
             autoFocus
+            aria-label={intl.formatMessage({ id: 'dialog.newList.title' })}
+            required
           />
-          <div className="flex justify-end gap-3">
+          
+          {/* Vylepšení UI: Responzivní layout tlačítek */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Button
               type="button"
               variant="ghost"
               onClick={onClose}
-              className="text-[#4e6a4d] hover:bg-[#f3f8e8]"
+              className="w-full sm:w-auto min-h-[44px] text-[#4e6a4d] hover:bg-[#f3f8e8]"
             >
-              Zrušit
+              {intl.formatMessage({ id: 'dialog.cancel' })}
             </Button>
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-[#7d9b69] text-white hover:bg-[#4e6a4d]"
+              className="w-full sm:w-auto min-h-[44px] bg-[#7d9b69] text-white hover:bg-[#4e6a4d]"
             >
-              Vytvořit seznam
+              {intl.formatMessage({ id: 'dialog.newList.create' })}
             </Button>
           </div>
         </form>

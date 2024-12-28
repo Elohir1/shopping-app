@@ -5,10 +5,17 @@ import Dashboard from './components/dashboard/Dashboard';
 import { ShoppingListDetail } from './components/shopping-lists/ShoppingListDetail';
 import { ApiService } from './api/apiService';
 import { Alert, AlertDescription } from "./components/ui/alert";
-import { BrowserRouter as Router } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import ErrorMessage from './components/ui/ErrorMessage';
+import { ThemeProvider } from 'next-themes';
+import { ThemeToggle } from './components/ui/ThemeToggle';
+import { IntlProvider } from 'react-intl';
+import { messages as czechMessages } from './locales/cs';
+import { messages as englishMessages } from './locales/en';
+import { messages as italianMessages } from './locales/it'; 
+
+type SupportedLocale = 'cs' | 'en' | 'it';
 
 export interface Seznam {
   id: number;
@@ -23,10 +30,17 @@ export interface Seznam {
 }
 
 function App() {
+  const [locale, setLocale] = useState<SupportedLocale>('cs');
   const currentUserEmail = "user@example.com";
   const [seznamy, setSeznamyState] = useState<Seznam[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const messages = {
+    cs: czechMessages,
+    en: englishMessages,
+    it: italianMessages
+  }[locale];
 
   // Načtení seznamů při startu aplikace
   useEffect(() => {
@@ -201,56 +215,62 @@ function App() {
   }
 
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        {loading ? (
-          <LoadingSpinner size="large" message="Načítám seznamy..." />
-        ) : (
-          <>
-            {error && (
-              <ErrorMessage
-                message={error}
-                variant="destructive"
-                onRetry={loadSeznamyData}
-              />
-            )}
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={
-                  <Dashboard 
-                    seznamy={seznamy}
-                    currentUserEmail={currentUserEmail}
-                    onDeleteList={handleDeleteList}
-                    onArchiveList={handleArchiveList}
-                    onUnarchiveList={handleUnarchiveList}
-                    onCreateList={handleCreateList}
-                    onUpdateList={handleUpdateList}
-                    onAddItem={handleAddItem}
-                    onDeleteItem={handleDeleteItem}
-                    onToggleItem={handleToggleItem}
-                    onLeaveList={handleLeaveList}
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <IntlProvider messages={messages} locale={locale}>
+        <ErrorBoundary>
+          <div className="min-h-screen bg-[#f3f8e8] dark:bg-[#1a2412]">
+            {loading ? (
+              <LoadingSpinner size="large" message="Načítám seznamy..." />
+            ) : (
+              <>
+                {error && (
+                  <ErrorMessage
+                    message={error}
+                    variant="destructive"
+                    onRetry={loadSeznamyData}
                   />
-                } />
-                <Route 
-                  path="/shopping-list/:id" 
-                  element={
-                    <ShoppingListDetail 
-                      seznamy={seznamy}
-                      currentUserEmail={currentUserEmail}
-                      onUpdateList={handleUpdateList}
-                      onAddItem={handleAddItem}
-                      onDeleteItem={handleDeleteItem}
-                      onToggleItem={handleToggleItem}
-                      onLeaveList={handleLeaveList}
+                )}
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={
+                      <Dashboard 
+                        seznamy={seznamy}
+                        currentUserEmail={currentUserEmail}
+                        locale={locale}
+                        onLanguageChange={setLocale}
+                        onDeleteList={handleDeleteList}
+                        onArchiveList={handleArchiveList}
+                        onUnarchiveList={handleUnarchiveList}
+                        onCreateList={handleCreateList}
+                        onUpdateList={handleUpdateList}
+                        onAddItem={handleAddItem}
+                        onDeleteItem={handleDeleteItem}
+                        onToggleItem={handleToggleItem}
+                        onLeaveList={handleLeaveList}
+                      />
+                    } />
+                    <Route 
+                      path="/shopping-list/:id" 
+                      element={
+                        <ShoppingListDetail 
+                          seznamy={seznamy}
+                          currentUserEmail={currentUserEmail}
+                          onUpdateList={handleUpdateList}
+                          onAddItem={handleAddItem}
+                          onDeleteItem={handleDeleteItem}
+                          onToggleItem={handleToggleItem}
+                          onLeaveList={handleLeaveList}
+                        />
+                      } 
                     />
-                  } 
-                />
-              </Route>
-            </Routes>
-          </>
-        )}
-      </div>
-    </ErrorBoundary>
+                  </Route>
+                </Routes>
+              </>
+            )}
+          </div>
+        </ErrorBoundary>
+      </IntlProvider>
+    </ThemeProvider>
   );
 }
 
